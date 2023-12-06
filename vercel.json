@@ -4,7 +4,7 @@
 
     "routes": [{
         "src": "/(.*)",
-        "dest": "/public/index.php"
+        "dest": "/"
     }],
     "env": {
         "APP_ENV": "production",
