@@ -8,20 +8,23 @@ use Validator;
 use App\Models\User;
 use Auth;
 
-class AuthController extends Controller {
+class AuthController extends Controller
+{
 
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'first_name' => 'required',
+            'last_name' => 'required',
             'email' => 'required|email',
-            'password' => 'required|password',
+            'password' => 'required|min:8',
             'confirm_password' => 'required|same:password',
-            'fmc_token' => 'required',
+            'fmc_token' => '',
             'phone_number' => 'required',
             'address' => ''
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             $response = [
                 'success' => false,
                 'message' => $validator->errors()
@@ -31,6 +34,10 @@ class AuthController extends Controller {
 
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
+        $input['first_name'] = $request->first_name;
+        $input['last_name'] = $request->last_name;
+        $input['email'] = $request->email;
+        $input['phone_number'] = $request->phone_number;
         $user = User::create($input);
         $success['token'] = $user->createToken('DonorConnect')->plainTextToken;
         $response = [
@@ -42,8 +49,9 @@ class AuthController extends Controller {
     }
 
 
-    public function login(Request $request) {
-        if(Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+    public function login(Request $request)
+    {
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
             $success['token'] = $user->createToken('DonorConnect')->plainTextToken;
             $success['name'] = $user->name;
